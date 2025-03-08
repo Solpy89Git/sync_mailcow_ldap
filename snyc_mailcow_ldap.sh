@@ -39,7 +39,7 @@ uninstall(){
 }
 
 run(){
-    echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - Starting Install"
+    echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - Starting Sync"
 }
 
 # 🔹 Log viewer
