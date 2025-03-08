@@ -81,6 +81,87 @@ FILE=$(find /etc /usr/local/etc "$HOME/.config" / \  -type f -name "mailcow_ldap
         exit 1
     fi
 
+    #mailcow_ldap_private.key
+echo "🔍 Search mailcow_ldap_private.key"
+FILE=$(find /etc /usr/local/etc "$HOME/.config" / \  -type f -name "mailcow_ldap_private.key" 2>/dev/null | head -n 1)
+
+     if [[ -f "$FILE" ]]; then
+        
+        echo "✅  Found mailcow_ldap_private.key"
+
+        PRIVATE_KEY_FILE=$FILE
+
+        echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - Found mailcow_ldap_private.key" | tee -a "$LOG_FILE"
+   
+    else
+        echo "❌ mailcow_ldap_private.key not found in:"
+        echo "   - /etc/"
+        echo "   - /usr/local/etc/"
+        echo "   - $HOME/.config/"
+        echo "   - $(dirname "$0")/"
+        echo
+        echo "‼️ ERROR: Please run .\snyc_mailcow_ldap.sh first --install or reinstall the solution after uninstalling."
+        exit 1
+
+    fi
+
+}
+
+decrypy(){
+
+#Only for Debug
+echo "❗ DEBUG KEY CRIPTED"
+echo $LDAP_PASSWORD_ENC
+
+#Only for Debug
+echo "❗ DEBUG KEY FILE"
+echo $PRIVATE_KEY_FILE
+
+LDAP_PASSWORD=$(echo -n "$LDAP_PASSWORD_ENC" | base64 -d | openssl smime -decrypt -binary -inform DER -inkey "$PRIVATE_KEY_FILE")
+
+#Only for Debug
+echo "❗ DEBUG KEY ENCRIPTED"
+echo $LDAP_PASSWORD
+
+echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - Decrypted LDAP Password" | tee -a "$LOG_FILE"
+
+}
+
+
+ldap_query(){
+
+echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - LDAP Query in execution" | tee -a "$LOG_FILE"
+
+ AD_USERS=$(ldapsearch -LLL -x -H "$LDAP_SERVER" \
+      -D "$LDAP_BIND_DN" \
+      -w "$LDAP_PASSWORD" \
+      -b "$LDAP_BASE_DN" \
+      "$LDAP_FILTER" mail sAMAccountName cn userAccountControl | \
+    awk '
+      /^dn:/ {mail=""; sam=""; name=""; uac=""}
+      /^mail:/ {mail=$2}
+      /^sAMAccountName:/ {sam=$2}
+      /^cn:/ {name=$0; sub(/^cn: /, "", name)}
+      /^userAccountControl:/ {uac=$2}
+      /^$/ {
+        if (mail && sam) {
+          print mail, sam, name, uac
+          mail=""; sam=""; name=""; uac=""
+        }
+      }')
+
+    if [[ -z "$AD_USERS" ]]; then
+        echo "❌ $(date '+%Y-%m-%d %H:%M:%S') - LDAP query returned no results. Check your LDAP settings." | tee -a "$LOG_FILE"
+        exit 1
+    else
+        echo "✅ $(date '+%Y-%m-%d %H:%M:%S') - LDAP query successful. Users found:" | tee -a "$LOG_FILE"
+        echo "$AD_USERS" | tee -a "$LOG_FILE"
+    fi
+
 }
 
 search_file
+source $CONFIG_FILE
+decrypy
+ldap_query
+ 
