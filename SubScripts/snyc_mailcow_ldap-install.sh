@@ -37,6 +37,7 @@ CONFIG_FILE="/etc/mailcow_ldap_sync.conf"
 CERT_FILE="/etc/mailcow_ldap.crt"
 PRIVATE_KEY_FILE="/etc/mailcow_ldap_private.key"
 DEFAULT_LOG_FILE="/var/log/mailcow_ldap_sync.log"
+LDAP_FILTER="(&(objectClass=person)(|(sAMAccountName=%uid)(mail=%uid)))"
 
 
 # 🔹 Function to display license and disclaimer
@@ -103,6 +104,65 @@ check_dependencies() {
     echo "🎉 All dependencies are installed!"
 }
 
+cert(){
+    echo "🔐 Generating SSL Certificate for Encryption..."
+    openssl genpkey -algorithm RSA -out "$PRIVATE_KEY_FILE"
+    openssl req -new -key "$PRIVATE_KEY_FILE" -out /tmp/mailcow_ldap.csr -subj "/CN=Mailcow LDAP Sync"
+    openssl x509 -req -days 3650 -in /tmp/mailcow_ldap.csr -signkey "$PRIVATE_KEY_FILE" -out "$CERT_FILE"
+    chmod 600 "$PRIVATE_KEY_FILE"
+    chmod 644 "$CERT_FILE"
+    rm /tmp/mailcow_ldap.csr
+}
+
 show_license
 license_acceptance
 check_dependencies
+cert
+
+echo "🔑 LDAP Configuration:"
+    read -p "LDAP Server (e.g., ldap://XXX.XXX.XXX.XXX or ldap://myldap.local): " LDAP_SERVER
+    read -p "LDAP Bind DN (e.g., CN=usertest,OU=Service,OU=Company,DC=domain,DC=local): " LDAP_BIND_DN
+    read -s -p "LDAP Bind User Password: " LDAP_PASSWORD; echo
+    read -p "LDAP Base DN (e.g., DC=domain,DC=local): " LDAP_BASE_DN
+    read -p "LDAP Filter [$LDAP_FILTER]: " LDAP_FILTER
+    read -p "Mailcow API URL (e.g., https://yourmailcowserver.com/api or http://xxx.xxx.xxx.xxx/api): " MAILCOW_API_URL
+    read -p "Mailcow API Key: " MAILCOW_API_KEY
+    read -p "Log File [$DEFAULT_LOG_FILE]: " LOG_FILE
+    LOG_FILE=${LOG_FILE:-$DEFAULT_LOG_FILE}
+    read -p "Cron interval in minutes [15]: " CRON_INTERVAL
+    CRON_INTERVAL=${CRON_INTERVAL:-15}
+
+echo "🔑 Encryption LDAP Configuration"
+LDAP_PASSWORD_ENC=$(echo -n "$LDAP_PASSWORD" | openssl smime -encrypt -aes-256-cbc -binary -outform DER "$CERT_FILE" | base64)
+
+echo "✅ Encryption LDAP Configuration Done"
+
+# 🔹 Creation Config File
+
+sudo tee "$CONFIG_FILE" > /dev/null <<EOL
+    LDAP_SERVER="$LDAP_SERVER"
+    LDAP_BIND_DN="$LDAP_BIND_DN"
+    LDAP_PASSWORD_ENC="$LDAP_PASSWORD_ENC"
+    LDAP_BASE_DN="$LDAP_BASE_DN"
+    LDAP_FILTER="$LDAP_FILTER"
+    MAILCOW_API_URL="$MAILCOW_API_URL"
+    MAILCOW_API_KEY="$MAILCOW_API_KEY"
+    LOG_FILE="$LOG_FILE"
+EOL
+
+echo "✅ Config File Creation Done"
+
+# 🔹 Cron
+
+    (crontab -l 2>/dev/null; echo "*/$CRON_INTERVAL * * * * /bin/bash $(realpath "$0") --run >> $LOG_FILE 2>&1") | crontab -
+    (crontab -l 2>/dev/null; echo "@reboot /bin/bash $(realpath "$0") --run >> $LOG_FILE 2>&1") | crontab -
+    
+    sudo systemctl daemon-reload
+    sudo systemctl enable mailcow-ldap-sync.service
+    sudo systemctl start mailcow-ldap-sync.service
+
+echo "✅ $(date '+%Y-%m-%d %H:%M:%S') - Installation completed! The script will start automatically on boot and run at regular intervals."
+echo ""
+echo "❗ Please execute the command ./sync_mailcow_ldap.sh --run to made the first sync."
+echo ""
+echo "😁 Good Work from Solpy89Git!"
