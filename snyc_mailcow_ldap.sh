@@ -65,7 +65,7 @@ uninstall(){
 
     UNINSTALL_FILE=$(find /etc /usr/local/etc "$HOME/.config" / \  -type f -name "snyc_mailcow_ldap-uninstall.sh" 2>/dev/null | head -n 1)
 
-     if [[ -f "$INSTALL_FILE" ]]; then
+     if [[ -f "$UNINSTALL_FILE" ]]; then
         
         echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - Starting Uninstall"
         bash $UNINSTALL_FILE

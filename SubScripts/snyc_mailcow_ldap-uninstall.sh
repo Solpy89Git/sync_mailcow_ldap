@@ -35,13 +35,13 @@
 # 🔹 Uninstall confirm
 uninstall_confirm() {
     
-    echo "⚠️⚠️⚠️ ALLERT! ⚠️⚠️⚠️"
+    echo "⚠️ ⚠️ ⚠️  ALLERT! ⚠️ ⚠️ ⚠️"
     echo ""
     echo "Are you sure to proceed with unistall?"
     echo ""
-    echo "If you proceed, all script files, configurations and certificates will be removed."
+    echo "If you proceed, logs, configurations and certificates will be removed."
     echo ""
-    echo "⁉️ Do you want proceed?[y/N]"
+    echo "⁉️  Do you want proceed?[y/N]"
 
     read -r ACCEPT_UNISTALL
     if [[ "$ACCEPT_UNISTALL" != "y" ]]; then
@@ -51,3 +51,98 @@ uninstall_confirm() {
 }
 
 uninstall_confirm
+
+echo "🔍 Search all file..."
+
+#mailcow_ldap_private.key
+echo "🔍 Search mailcow_ldap_private.key"
+R_FILE=$(find /etc /usr/local/etc "$HOME/.config" / \  -type f -name "mailcow_ldap_private.key" 2>/dev/null | head -n 1)
+
+     if [[ -f "$R_FILE" ]]; then
+        
+        echo "✅  Found mailcow_ldap_private.key"
+
+        rm $R_FILE
+    
+        echo "❎  Removed mailcow_ldap_private.key"
+
+    else
+        echo "❌ mailcow_ldap_private.key not found in:"
+        echo "   - /etc/"
+        echo "   - /usr/local/etc/"
+        echo "   - $HOME/.config/"
+        echo "   - $(dirname "$0")/"
+        echo
+        echo "❎  mailcow_ldap_private.key already removed."
+    fi
+
+#mailcow_ldap.crt
+echo "🔍 Search mailcow_ldap.crt"
+R_FILE=$(find /etc /usr/local/etc "$HOME/.config" / \  -type f -name "mailcow_ldap.crt" 2>/dev/null | head -n 1)
+
+     if [[ -f "$R_FILE" ]]; then
+        
+        echo "✅  Found mailcow_ldap.crt"
+
+        rm $R_FILE
+    
+        echo "❎  Removed mailcow_ldap.crt"
+
+    else
+        echo "❌ mailcow_ldap.crt not found in:"
+        echo "   - /etc/"
+        echo "   - /usr/local/etc/"
+        echo "   - $HOME/.config/"
+        echo "   - $(dirname "$0")/"
+        echo
+        echo "❎  mailcow_ldap.crt already removed."
+    fi
+
+#mailcow_ldap_sync.conf
+echo "🔍 Search mailcow_ldap_sync.conf"
+R_FILE=$(find /etc /usr/local/etc "$HOME/.config" / \  -type f -name "mailcow_ldap_sync.conf" 2>/dev/null | head -n 1)
+
+     if [[ -f "$R_FILE" ]]; then
+        
+        echo "✅  Found mailcow_ldap_sync.conf"
+
+        rm $R_FILE
+    
+        echo "❎  Removed mailcow_ldap_sync.conf"
+
+    else
+        echo "❌ mailcow_ldap_sync.conf not found in:"
+        echo "   - /etc/"
+        echo "   - /usr/local/etc/"
+        echo "   - $HOME/.config/"
+        echo "   - $(dirname "$0")/"
+        echo
+        echo "❎  mailcow_ldap_sync.conf already removed."
+    fi
+
+#mailcow_ldap_sync.log
+echo "🔍 Search mailcow_ldap_sync.log"
+R_FILE=$(find /etc /usr/local/etc "$HOME/.config" / \  -type f -name "mailcow_ldap_sync.log" 2>/dev/null | head -n 1)
+
+     if [[ -f "$R_FILE" ]]; then
+        
+        echo "✅  Found mailcow_ldap_sync.log"
+
+        rm $R_FILE
+    
+        echo "❎  Removed mailcow_ldap_sync.log"
+
+    else
+        echo "❌ mailcow_ldap_sync.log not found in:"
+        echo "   - /etc/"
+        echo "   - /usr/local/etc/"
+        echo "   - $HOME/.config/"
+        echo "   - $(dirname "$0")/"
+        echo
+        echo "❎  mailcow_ldap_sync.log already removed."
+    fi
+
+echo "🧹 Uninstall complete."
+	echo "Thank you in every way for using me."
+	echo "See you soon!"
+	echo "Solpy89Git"
