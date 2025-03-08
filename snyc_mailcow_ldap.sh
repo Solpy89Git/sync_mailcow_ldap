@@ -27,6 +27,10 @@
 #             The future use of the script may be useless when all the bugs in the Nightly branch of mailcow are solved.
 #
 ##############################################################################
+#
+#                                 INDEX.SH
+#
+##############################################################################
 
 # 🔹 Sub Scripts
 
