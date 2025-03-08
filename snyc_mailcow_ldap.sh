@@ -45,7 +45,7 @@ install(){
         
         echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - Starting Install"
         bash $INSTALL_FILE
-
+    
     else
         echo "❌ Installation File not found in:"
         echo "   - /etc/"
@@ -67,7 +67,7 @@ uninstall(){
 
      if [[ -f "$UNINSTALL_FILE" ]]; then
         
-        echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - Starting Uninstall"
+        echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - Starting Run"
         bash $UNINSTALL_FILE
 
     else
@@ -83,15 +83,56 @@ uninstall(){
 }
 
 run(){
-    echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - Starting Sync"
+   
+    echo "🔍 Search for run function."
+    echo "🙏 Please wait ..."
+
+    RUN_FILE=$(find /etc /usr/local/etc "$HOME/.config" / \  -type f -name "snyc_mailcow_ldap-run.sh" 2>/dev/null | head -n 1)
+
+     if [[ -f "$RUN_FILE" ]]; then
+        
+        echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - Starting Uninstall"
+        bash $RUN_FILE
+
+    else
+        echo "❌ Uninstallation File not found in:"
+        echo "   - /etc/"
+        echo "   - /usr/local/etc/"
+        echo "   - $HOME/.config/"
+        echo "   - $(dirname "$0")/"
+        echo
+        echo "Please try to download again the files and resubmit installation."
+        exit 1
+    fi
 }
 
 # 🔹 Log viewer
 log() { 
 
-    DEFAULT_LOG_FILE=()
+    #mailcow_ldap_sync.log
+echo "🔍 Search mailcow_ldap_sync.log"
+FILE=$(find /etc /usr/local/etc "$HOME/.config" / \  -type f -name "mailcow_ldap_sync.log" 2>/dev/null | head -n 1)
 
-    tail -n 20 "$DEFAULT_LOG_FILE"; 
+     if [[ -f "$FILE" ]]; then
+        
+        echo "✅  Found mailcow_ldap_sync.log"
+
+        LOG_FILE=$FILE
+
+        echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - Found mailcow_ldap_sync.log" | tee -a "$LOG_FILE"
+
+    else
+        echo "❌ mailcow_ldap_sync.log not found in:"
+        echo "   - /etc/"
+        echo "   - /usr/local/etc/"
+        echo "   - $HOME/.config/"
+        echo "   - $(dirname "$0")/"
+        echo
+        echo "‼️ ERROR: Please run .\snyc_mailcow_ldap.sh first --install or reinstall the solution after uninstalling."
+        exit 1
+    fi
+
+    tail -n 20 "$LOG_FILE"; 
     
 }
 
