@@ -36,13 +36,15 @@
 
 install(){
    
-    INSTALL_FILE=$(find /etc /usr/local/etc "$HOME/.config" "$(dirname "$0")" \
-      -maxdepth 1 -type f -name "snyc_mailcow_ldap-install.sh" 2>/dev/null | head -n 1)
+    echo "🔍 Search for installation function."
+    echo "🙏 Please wait ..."
+
+    INSTALL_FILE=$(find /etc /usr/local/etc "$HOME/.config" / \  -type f -name "snyc_mailcow_ldap-install.sh" 2>/dev/null | head -n 1)
 
      if [[ -f "$INSTALL_FILE" ]]; then
         
         echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - Starting Install"
-        sh $INSTALL_FILE
+        bash $INSTALL_FILE
 
     else
         echo "❌ Installation File not found in:"
