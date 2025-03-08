@@ -153,6 +153,20 @@ EOL
 
 echo "✅ Config File Creation Done"
 
+# 🔹 Creation Log File
+
+    echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - LDAP_SERVER CONFIGURATED" > $LOG_FILE
+    echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - LDAP_BIND_DN CONFIGURATED" > $LOG_FILE
+    echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - LDAP_PASSWORD_ENC CONFIGURATED" > $LOG_FILE
+    echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - LDAP_BASE_DN CONFIGURATED" > $LOG_FILE
+    echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - LDAP_FILTER CONFIGURATED" > $LOG_FILE
+    echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - MAILCOW_API_URL CONFIGURATED" > $LOG_FILE
+    echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - MAILCOW_API_KEY CONFIGURATED" > $LOG_FILE
+    echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - LOG_FILE CONFIGURATED" > $LOG_FILE
+
+
+echo "✅ Log File Creation Done"
+
 # 🔹 Cron
 
 #    (crontab -l 2>/dev/null; echo "*/$CRON_INTERVAL * * * * /bin/bash $(realpath "$0") --run >> $LOG_FILE 2>&1") | crontab -

@@ -58,53 +58,6 @@ FILE=$(find /etc /usr/local/etc "$HOME/.config" / \  -type f -name "mailcow_ldap
         exit 1
     fi
 
-#mailcow_ldap_private.key
-echo "🔍 Search mailcow_ldap_private.key"
-FILE=$(find /etc /usr/local/etc "$HOME/.config" / \  -type f -name "mailcow_ldap_private.key" 2>/dev/null | head -n 1)
-
-     if [[ -f "$FILE" ]]; then
-        
-        echo "✅  Found mailcow_ldap_private.key"
-
-        PRIVATE_KEY_FILE=$FILE
-
-        echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - Found mailcow_ldap_private.key" | tee -a "$LOG_FILE"
-   
-    else
-        echo "❌ mailcow_ldap_private.key not found in:"
-        echo "   - /etc/"
-        echo "   - /usr/local/etc/"
-        echo "   - $HOME/.config/"
-        echo "   - $(dirname "$0")/"
-        echo
-        echo "‼️ ERROR: Please run .\snyc_mailcow_ldap.sh first --install or reinstall the solution after uninstalling."
-        exit 1
-
-    fi
-
-#mailcow_ldap.crt
-echo "🔍 Search mailcow_ldap.crt"
-FILE=$(find /etc /usr/local/etc "$HOME/.config" / \  -type f -name "mailcow_ldap.crt" 2>/dev/null | head -n 1)
-
-     if [[ -f "$FILE" ]]; then
-        
-        echo "✅  Found mailcow_ldap.crt"
-
-        CERT_FILE=$FILE
-
-        echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - Found mailcow_ldap.crt" | tee -a "$LOG_FILE"
-
-    else
-        echo "❌ mailcow_ldap.crt not found in:"
-        echo "   - /etc/"
-        echo "   - /usr/local/etc/"
-        echo "   - $HOME/.config/"
-        echo "   - $(dirname "$0")/"
-        echo
-        echo "‼️ ERROR: Please run .\snyc_mailcow_ldap.sh first --install or reinstall the solution after uninstalling."
-        exit 1
-    fi
-
 #mailcow_ldap_sync.conf
 echo "🔍 Search mailcow_ldap_sync.conf"
 FILE=$(find /etc /usr/local/etc "$HOME/.config" / \  -type f -name "mailcow_ldap_sync.conf" 2>/dev/null | head -n 1)

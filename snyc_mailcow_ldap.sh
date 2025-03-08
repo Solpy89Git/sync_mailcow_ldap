@@ -67,7 +67,7 @@ uninstall(){
 
      if [[ -f "$UNINSTALL_FILE" ]]; then
         
-        echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - Starting Run"
+        echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - Starting Unistall"
         bash $UNINSTALL_FILE
 
     else
@@ -91,7 +91,7 @@ run(){
 
      if [[ -f "$RUN_FILE" ]]; then
         
-        echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - Starting Uninstall"
+        echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - Starting Run"
         bash $RUN_FILE
 
     else
