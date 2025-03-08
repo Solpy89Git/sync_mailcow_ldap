@@ -20,7 +20,7 @@
 #
 ##############################################################################
 #
-#   Author:   Solpy89
+#   Author:   Solpy89Git
 #   Mail:     solberg_89@hotmail.it
 #   Date:     02/01/2025
 #   Scope:    This script is meant to partially solve the synchronization between ldap/Active Directory and Mailcow.
