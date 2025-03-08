@@ -117,7 +117,7 @@ echo $LDAP_PASSWORD_ENC
 echo "❗ DEBUG KEY FILE"
 echo $PRIVATE_KEY_FILE
 
-LDAP_PASSWORD=$(echo -n "$LDAP_PASSWORD_ENC" | base64 -d | openssl smime -decrypt -binary -inform DER -inkey "$PRIVATE_KEY_FILE")
+LDAP_PASSWORD=$(echo -n "$LDAP_PASSWORD_ENC" | base64 -d | openssl smime -decrypt -binary -inform DER -inkey "$PRIVATE_KEY_FILE" |  sed 's/^ *//;s/ *$//')
 
 #Only for Debug
 echo "❗ DEBUG KEY ENCRIPTED"
@@ -132,12 +132,11 @@ ldap_query(){
 
 echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - LDAP Query in execution" | tee -a "$LOG_FILE"
 
- AD_USERS=$(ldapsearch -LLL -x -H "$LDAP_SERVER" \
-      -D "$LDAP_BIND_DN" \
-      -w "$LDAP_PASSWORD" \
-      -b "$LDAP_BASE_DN" \
-      "$LDAP_FILTER" mail sAMAccountName cn userAccountControl | \
-    awk '
+AD_USERS=$(ldapsearch -LLL -x -H "$LDAP_SERVER" \
+    -D "$LDAP_BIND_DN" \
+    -w "$LDAP_PASSWORD" \
+    -b "$LDAP_BASE_DN" \
+    "$LDAP_FILTER" mail sAMAccountName cn userAccountControl | awk '
       /^dn:/ {mail=""; sam=""; name=""; uac=""}
       /^mail:/ {mail=$2}
       /^sAMAccountName:/ {sam=$2}
@@ -149,6 +148,8 @@ echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - LDAP Query in execution" | tee -a "$LO
           mail=""; sam=""; name=""; uac=""
         }
       }')
+
+
 
     if [[ -z "$AD_USERS" ]]; then
         echo "❌ $(date '+%Y-%m-%d %H:%M:%S') - LDAP query returned no results. Check your LDAP settings." | tee -a "$LOG_FILE"
