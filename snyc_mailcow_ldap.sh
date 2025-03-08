@@ -59,7 +59,27 @@ install(){
 }
 
 uninstall(){
-    echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - Starting Uninstall"
+    
+    echo "🔍 Search for uninstallation function."
+    echo "🙏 Please wait ..."
+
+    UNINSTALL_FILE=$(find /etc /usr/local/etc "$HOME/.config" / \  -type f -name "snyc_mailcow_ldap-uninstall.sh" 2>/dev/null | head -n 1)
+
+     if [[ -f "$INSTALL_FILE" ]]; then
+        
+        echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - Starting Uninstall"
+        bash $UNINSTALL_FILE
+
+    else
+        echo "❌ Uninstallation File not found in:"
+        echo "   - /etc/"
+        echo "   - /usr/local/etc/"
+        echo "   - $HOME/.config/"
+        echo "   - $(dirname "$0")/"
+        echo
+        echo "Please try to download again the files and resubmit installation."
+        exit 1
+    fi
 }
 
 run(){
