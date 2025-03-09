@@ -271,8 +271,8 @@ echo "$AD_USERS_FORMATTED" | while read -r line; do
     # Print result debug
     echo "📧 Email: $email"
     echo "👤 Username: $username"
-    echo "📝 Nome Completo: $name"
-    echo "🔍 Stato UAC: $uac"
+    echo "📝 Display Name: $name"
+    echo "🔍 UAC: $uac"
     echo "--------------------------------"
 
 done
@@ -297,8 +297,7 @@ done
     local_part="${email%@*}"
 
     # Mailbox quota
-    ((MAILCOW_QUOTA=mailcow_quota))
-    quota=$mailcow_quota
+    quota=$MAILCOW_QUOTA
 
     # Build JSON payload using jq
     payload=$(jq -n \
@@ -334,6 +333,27 @@ done
     echo "📌 JSON Payload for $email:"
     echo "$payload" | jq '.'
 
+if echo "$MAILCOW_USERS" | grep -q "$email"; then
+
+        echo "🔄 Updating user: $email" | tee -a "$LOG_FILE"
+
+        curl -s -X POST "$MAILCOW_API_URL/v1/edit/mailbox" \
+                -H "X-API-Key: $MAILCOW_API_KEY" \
+                -H "Content-Type: application/json" \
+                -d "$payload" | tee -a "$LOG_FILE"
+
+else
+
+        echo "➕ Adding new user: $email" | tee -a "$LOG_FILE"
+
+        curl -s -X POST "$MAILCOW_API_URL/v1/add/mailbox" \
+                -H "X-API-Key: $MAILCOW_API_KEY" \
+                -H "Content-Type: application/json" \
+                -d "$payload" | tee -a "$LOG_FILE"
+
+fi
+
+
 done
 
 
@@ -347,3 +367,5 @@ decrypy
 ldap_query
 mailcow_query
 sync_mailcow_ldap
+
+echo "✅ $(date '+%Y-%m-%d %H:%M:%S') - Sync completed successfully." | tee -a "$LOG_FILE"
