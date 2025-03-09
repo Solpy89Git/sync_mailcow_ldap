@@ -216,9 +216,14 @@ echo "$AD_USERS"
 
 mailcow_query(){
 
+    #Only for Debug
+    echo "❗ DEBUG QUERY STRING"
+    echo "curl -s $MAILCOW_API_URL/v1/get/mailbox/all/$MAILCOW_DOMAIN -H '"X-API-Key: $MAILCOW_API_KEY"' | jq -r '.[].username'"
+
+
     echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - Mailcow Query in execution" | tee -a "$LOG_FILE"    
 
-    MAILCOW_USERS=$(curl -s "$MAILCOW_API_URL/get/mailbox/all/$MAILCOW_DOMAIN" -H "X-API-Key: $MAILCOW_API_KEY" | jq -r '.[].username')
+    MAILCOW_USERS=$(curl -s "$MAILCOW_API_URL/v1/get/mailbox/all/$MAILCOW_DOMAIN" -H "X-API-Key: $MAILCOW_API_KEY" | jq -r '.[].username')
 
     #Only for Debug
 echo
