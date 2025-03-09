@@ -230,11 +230,120 @@ echo
 echo "❗ DEBUG QUERY OUTPUT"
 echo "$MAILCOW_USERS"
 
+}
+
+sync_mailcow_ldap(){
+
+
+#Formatting
+AD_USERS_FORMATTED=$(echo "$AD_USERS" | awk '
+{
+    line=""
+    for (i=1; i<=NF; i++) {
+        if ($i ~ /^[0-9]+$/) {  # Se è un numero (UAC)
+            line = (line == "") ? $i : line " " $i   # Add the number to the line without a leading space
+            print line           # Print the complete line
+            line=""              # Reset the line for the next user
+        } else {
+            line = (line == "") ? $i : line " " $i   # Continue adding words without a leading space
+        }
+    }
+}')
+
+#Only for Debug
+echo
+echo "❗ DEBUG FORMATTING OUTPUT"
+echo "$AD_USERS_FORMATTED"
+echo
+
+echo "$AD_USERS_FORMATTED" | while read -r line; do
+    # Fields
+    email=$(echo "$line" | awk '{print $1}')
+    username=$(echo "$line" | awk '{print $2}')
+    uac=$(echo "$line" | awk '{print $NF}')  # Ultimo valore = UAC
+
+    # Values
+    name=$(echo "$line" | awk '{for (i=3; i<NF; i++) printf "%s ", $i; print ""}')
+
+    # Trim
+    name=$(echo "$name" | sed 's/ *$//')
+
+    # Print result debug
+    echo "📧 Email: $email"
+    echo "👤 Username: $username"
+    echo "📝 Nome Completo: $name"
+    echo "🔍 Stato UAC: $uac"
+    echo "--------------------------------"
+
+done
+
+
+# Process each user and build JSON payload
+    echo "$AD_USERS_FORMATTED" | while read -r line; do
+    # Fields extraction
+    email=$(echo "$line" | awk '{print $1}' | tr -d '[:space:]')
+    username=$(echo "$line" | awk '{print $2}' | tr -d '[:space:]')
+    uac=$(echo "$line" | awk '{print $NF}' | tr -d '[:space:]')  # Last value = UAC
+
+    # Extract name (all values between username and UAC)
+    name=$(echo "$line" | awk '{for (i=3; i<NF; i++) printf "%s ", $i; print ""}')
+    name=$(echo "$name" | sed 's/ *$//')  # Trim spaces
+
+    # Convert UAC value to Active Status (512 = Active)
+    [[ "$uac" -eq 512 ]] && active_int=1 || active_int=0
+
+    # Extract email domain and local part
+    domain="${email#*@}"
+    local_part="${email%@*}"
+
+    # Mailbox quota
+    ((MAILCOW_QUOTA=mailcow_quota))
+    quota=$mailcow_quota
+
+    # Build JSON payload using jq
+    payload=$(jq -n \
+        --arg e "$email" \
+        --arg d "$domain" \
+        --arg n "$name" \
+        --arg l "$local_part" \
+        --argjson a "$active_int" \
+        --argjson quota "$quota" \
+        '{
+            username: $e,
+            active: $a,
+            domain: $d,
+            local_part: $l,
+            name: $n,
+            quota: $quota,
+            attributes: {
+                imap_access: "1",
+                smtp_access: "1",
+                sieve_access: "1",
+                pop3_access: "0",
+                sogo_access: "1"
+            },
+            custom_attributes: {
+                mailcow_template: "default"
+            },
+            "authsource": "keycloak",
+            "password": "MyRandomPassword#0"
+        }')
+
+    # Debug Output
+    echo
+    echo "📌 JSON Payload for $email:"
+    echo "$payload" | jq '.'
+
+done
+
+
 
 }
+
 
 search_file
 source $CONFIG_FILE
 decrypy
 ldap_query
 mailcow_query
+sync_mailcow_ldap

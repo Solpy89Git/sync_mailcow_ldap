@@ -129,6 +129,7 @@ echo "🔑 LDAP Configuration:"
     read -p "Mailcow API URL (e.g., https://yourmailcowserver.com/api or http://xxx.xxx.xxx.xxx/api): " MAILCOW_API_URL
     read -p "Mailcow API Key: " MAILCOW_API_KEY
     read -p "Mailcow Mailbox Domain: " MAILCOW_DOMAIN
+    read -p "Mailcow Mailbox Quota (MiB): " MAILCOW_QUOTA
     read -p "Log File [$DEFAULT_LOG_FILE]: " LOG_FILE
     LOG_FILE=${LOG_FILE:-$DEFAULT_LOG_FILE}
     read -p "Cron interval in minutes [15]: " CRON_INTERVAL
@@ -149,6 +150,7 @@ sudo tee "$CONFIG_FILE" > /dev/null <<EOL
     LDAP_FILTER="$LDAP_FILTER"
     MAILCOW_API_URL="$MAILCOW_API_URL"
     MAILCOW_API_KEY="$MAILCOW_API_KEY"
+    MAILCOW_QUOTA="$MAILCOW_QUOTA"
     MAILCOW_DOMAIN="$MAILCOW_DOMAIN"
     LOG_FILE="$LOG_FILE"
 EOL
@@ -165,6 +167,7 @@ echo "✅ Config File Creation Done"
     echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - MAILCOW_API_URL CONFIGURATED" >> $LOG_FILE
     echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - MAILCOW_API_KEY CONFIGURATED" >> $LOG_FILE
     echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - MAILCOW_DOMAIN CONFIGURATED" >> $LOG_FILE
+    echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - MAILCOW_QUOTA CONFIGURATED" >> $LOG_FILE
     echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - LOG_FILE CONFIGURATED" >> $LOG_FILE
 
 
