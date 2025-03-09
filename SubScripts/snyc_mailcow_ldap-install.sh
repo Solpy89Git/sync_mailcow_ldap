@@ -175,12 +175,12 @@ echo "✅ Log File Creation Done"
 
 # 🔹 Cron
 
-#    (crontab -l 2>/dev/null; echo "*/$CRON_INTERVAL * * * * /bin/bash $(realpath "$0") --run >> $LOG_FILE 2>&1") | crontab -
-#    (crontab -l 2>/dev/null; echo "@reboot /bin/bash $(realpath "$0") --run >> $LOG_FILE 2>&1") | crontab -
+    (crontab -l 2>/dev/null; echo "*/$CRON_INTERVAL * * * * /bin/bash $(realpath "$0") --run >> $LOG_FILE 2>&1") | crontab -
+    (crontab -l 2>/dev/null; echo "@reboot /bin/bash $(realpath "$0") --run >> $LOG_FILE 2>&1") | crontab -
     
-#    sudo systemctl daemon-reload
-#    sudo systemctl enable mailcow-ldap-sync.service
-#    sudo systemctl start mailcow-ldap-sync.service
+    sudo systemctl daemon-reload
+    sudo systemctl enable mailcow-ldap-sync.service
+    sudo systemctl start mailcow-ldap-sync.service
 
 echo "✅ $(date '+%Y-%m-%d %H:%M:%S') - Installation completed! The script will start automatically on boot and run at regular intervals."
 echo ""
