@@ -132,11 +132,16 @@ ldap_query(){
 
 echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - LDAP Query in execution" | tee -a "$LOG_FILE"
 
-AD_USERS=$(ldapsearch -LLL -x -H "$LDAP_SERVER" \
-    -D "$LDAP_BIND_DN" \
-    -w "$LDAP_PASSWORD" \
-    -b "$LDAP_BASE_DN" \
-    "$LDAP_FILTER" mail sAMAccountName cn userAccountControl | awk '
+#Only for Debug
+echo "❗ DEBUG QUERY STRING"
+echo "ldapsearch -LLL -x -H "$LDAP_SERVER" -D "$LDAP_BIND_DN" -w "$LDAP_PASSWORD" -b "$LDAP_BASE_DN" "$LDAP_FILTER" mail sAMAccountName cn userAccountControl"
+
+    AD_USERS=$(ldapsearch -LLL -x -H "$LDAP_SERVER" \
+      -D "$LDAP_BIND_DN" \
+      -w "$LDAP_PASSWORD" \
+      -b "$LDAP_BASE_DN" \
+      '"$LDAP_FILTER"' mail sAMAccountName cn userAccountControl | \
+    awk '
       /^dn:/ {mail=""; sam=""; name=""; uac=""}
       /^mail:/ {mail=$2}
       /^sAMAccountName:/ {sam=$2}
@@ -149,15 +154,77 @@ AD_USERS=$(ldapsearch -LLL -x -H "$LDAP_SERVER" \
         }
       }')
 
-
-
     if [[ -z "$AD_USERS" ]]; then
         echo "❌ $(date '+%Y-%m-%d %H:%M:%S') - LDAP query returned no results. Check your LDAP settings." | tee -a "$LOG_FILE"
         exit 1
     else
-        echo "✅ $(date '+%Y-%m-%d %H:%M:%S') - LDAP query successful. Users found:" | tee -a "$LOG_FILE"
-        echo "$AD_USERS" | tee -a "$LOG_FILE"
+        echo "✅ $(date '+%Y-%m-%d %H:%M:%S') - LDAP query successful." | tee -a "$LOG_FILE"
+        echo
+        echo "List of Users Found:" | tee -a "$LOG_FILE"
+        echo                        | tee -a "$LOG_FILE"
+
+        ldapsearch -LLL -x -H "$LDAP_SERVER" \
+    -D "$LDAP_BIND_DN" \
+    -w "$LDAP_PASSWORD" \
+    -b "$LDAP_BASE_DN" \
+    '"$LDAP_FILTER"' \
+    mail sAMAccountName cn userAccountControl | awk '
+    BEGIN {
+        count=0
+        column1_width=40  # MAIL
+        column2_width=20  # CN (sAMAccountName)
+        column3_width=25  # DISPLAY NAME (cn)
+        column4_width=5   # UAC
+        format = "%-" column1_width "s | %-" column2_width "s | %-" column3_width "s | %-" column4_width "s\n"
+
+        printf format, "MAIL", "CN", "DISPLAY NAME", "UAC"
+        printf "%s\n", str_repeat("-", column1_width + column2_width + column3_width + column4_width + 9)
+    }
+
+    function str_repeat(char, num) {
+        result = ""
+        for (i=0; i<num; i++) result = result char
+        return result
+    }
+
+    /^dn:/ {mail=""; sam=""; name=""; uac=""}
+    /^mail:/ {mail=$2}
+    /^sAMAccountName:/ {sam=$2}
+    /^cn:/ {name=$0; sub(/^cn: /, "", name)}
+    /^userAccountControl:/ {uac=$2}
+    /^$/ {
+        if (mail && sam) {
+            printf format, mail, sam, name, uac
+            count++
+            mail=""; sam=""; name=""; uac=""
+        }
+    }
+
+    END {
+        printf "%s\n", str_repeat("-", column1_width + column2_width + column3_width + column4_width + 9)
+        printf "Total Accounts Found: %d\n", count
+    }' | tee -a "$LOG_FILE"
+
+
+#Only for Debug
+echo
+echo "❗ DEBUG QUERY OUTPUT"
+echo "$AD_USERS"
+
     fi
+}
+
+mailcow_query(){
+
+    echo "🚀 $(date '+%Y-%m-%d %H:%M:%S') - Mailcow Query in execution" | tee -a "$LOG_FILE"    
+
+    MAILCOW_USERS=$(curl -s "$MAILCOW_API_URL/get/mailbox/all/$MAILCOW_DOMAIN" -H "X-API-Key: $MAILCOW_API_KEY" | jq -r '.[].username')
+
+    #Only for Debug
+echo
+echo "❗ DEBUG QUERY OUTPUT"
+echo "$MAILCOW_USERS"
+
 
 }
 
@@ -165,4 +232,4 @@ search_file
 source $CONFIG_FILE
 decrypy
 ldap_query
- 
+mailcow_query
