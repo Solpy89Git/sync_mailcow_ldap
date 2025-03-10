@@ -1,5 +1,4 @@
 # sync_mailcow_ldap
-Sync Mailcow LDAP Script (SMLS)
 
 READ BEFORE USING!
 
