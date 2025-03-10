@@ -337,19 +337,39 @@ if echo "$MAILCOW_USERS" | grep -q "$email"; then
 
         echo "🔄 Updating user: $email" | tee -a "$LOG_FILE"
 
-        curl -s -X POST "$MAILCOW_API_URL/v1/edit/mailbox" \
+      RESPONSE=$(curl -s -X POST "$MAILCOW_API_URL/v1/edit/mailbox" \
                 -H "X-API-Key: $MAILCOW_API_KEY" \
                 -H "Content-Type: application/json" \
-                -d "$payload" | tee -a "$LOG_FILE"
+                -d "$payload" | tee -a "$LOG_FILE")
+
+      if echo "$RESPONSE" | grep -q "success"; then
+
+      echo "✅ User update: $email SUCCESSFUL | tee -a "$LOG_FILE"
+
+      else
+
+      echo "❗ User update: $email FAILED | tee -a "$LOG_FILE"
+
+      fi
 
 else
 
         echo "➕ Adding new user: $email" | tee -a "$LOG_FILE"
 
-        curl -s -X POST "$MAILCOW_API_URL/v1/add/mailbox" \
+      RESPONSE=$(curl -s -X POST "$MAILCOW_API_URL/v1/add/mailbox" \
                 -H "X-API-Key: $MAILCOW_API_KEY" \
                 -H "Content-Type: application/json" \
-                -d "$payload" | tee -a "$LOG_FILE"
+                -d "$payload" | tee -a "$LOG_FILE")
+
+      if echo "$RESPONSE" | grep -q "success"; then
+
+      echo "✅ Adding user: $email SUCCESSFUL | tee -a "$LOG_FILE"
+
+      else
+
+      echo "❗ Adding user: $email FAILED | tee -a "$LOG_FILE"
+
+      fi
 
 fi
 
