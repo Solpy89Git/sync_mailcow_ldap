@@ -344,11 +344,11 @@ if echo "$MAILCOW_USERS" | grep -q "$email"; then
 
       if echo "$RESPONSE" | grep -q "success"; then
 
-      echo "✅ User update: $email SUCCESSFUL | tee -a "$LOG_FILE"
+      echo "✅ User update: $email SUCCESSFUL" | tee -a "$LOG_FILE"
 
       else
 
-      echo "❗ User update: $email FAILED | tee -a "$LOG_FILE"
+      echo "❗ User update: $email FAILED" | tee -a "$LOG_FILE"
 
       fi
 
